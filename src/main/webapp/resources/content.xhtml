@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head >       <title>Facelet Title</title>
+        <h:outputStylesheet library="css" name="cssLauout.css"  />
+        <!-- <h:outputScript library="js" name="onDragDrop.js" target="body"/> -->
+
+
+    </h:head>
+    <h:body>
+
+        <ui:composition >
+
+
+            <h:form id="basicForm" prependId="false" > 
+                <div style="display: table; width: 100%;height: 100%; position: absolute">
+
+                    <p:dialog header="Открыть Запрос" widgetVar="dlgOpenProject">
+                        <p:fileUpload value="#{openQueryManagedBean.handleFileUpload1}" fileLimit="1" mode="advanced"
+                                      update="messages"  allowTypes="/(\.|\/)(gif|jpe?g|png)$/" />
+                        <p:commandButton  id="dlgOpenProjectOpen" style="margin: 10px 20px"   value="Открыть" title="Открыть" ajax="true" update="growl"  actionListener="#{openQueryManagedBean.buttonAction}"/>
+                        <p:commandButton  id="dlgOpenProjecRevocation" style="margin: 10px 20px"   value="Отмена" title="Отмена" ajax="true" update="growl"  actionListener="#{openQueryManagedBean.buttonActionRevocation}"/>
+                    </p:dialog> 
+                    <p:growl id="messages" showDetail="true" /> 
+                    <p:growl id="growl" showDetail="true" />
+                    <p:dialog widgetVar="statusDialog" modal="true"  closable="false" resizable="false" showHeader="false">
+                        <p:graphicImage name="/images/default.gif" />
+                    </p:dialog>
+                    <p:tabView value="#{openedUserQueriesManagedBean.querySchemes}"
+                               activeIndex="#{openedUserQueriesManagedBean.activeTabIndex}" id="tabViewQuery" var="query" style="display: table-cell">
+                        <p:ajax event="tabChange" listener="#{openedUserQueriesManagedBean.onTabChange}" />
+                        <p:tab title="#{query.name}">
+
+                            <p:diagram value="#{query.model}" id ="diagramModel" style="height:900px; width: 100%;" var="blockQuerySchema" styleClass="ui-widget-content">
+                                <p:droppable widgetVar="dropWV" for ="diagramModel"> 
+                                    <p:ajax process ="diagramModel" listener="#{openedUserQueriesManagedBean.onDrop}" />
+                                </p:droppable>
+                                <f:facet name="element" id="aaa">
+                                 
+
+                                    <!--      <p:scrollPanel mode="native" class="dragAndDropScrollPanel">-->
+
+
+
+                                    <p:commandButton    style="margin: 10px 20px"   icon="fa fa-plus" title="Добавить связанную сущность" actionListener="#{query.onElementClicked}">
+
+                                    </p:commandButton>
+
+                                    <!--     </p:scrollPanel>-->
+
+                                    <!--   <p:draggable /> -->
+                            
+                                </f:facet>
+                            </p:diagram>
+                            <p:remoteCommand name="elementDroped" actionListener="#{query.onElementClicked}"/>
+                            <p:remoteCommand id ="inputModified" actionListener="#{query.onNodeMove}" />
+                        </p:tab>
+                    </p:tabView>
+                </div>
+                <script>
+                    function modified (){
+					var mod = $('.jsplumb-drag');
+					var modifiedArray = [];
+					mod.each(function(index){
+						var elem = $(this)[0];
+						var data = {
+							id:elem.id,                      // 
+							left:elem.style['left'],
+							top:elem.style['top']
+						};
+						modifiedArray.push(data);						
+					})
+              // you can switch this input selector to a remote command, passing the same value
+					$("input[id='tabViewQuery:inputModified']").val(JSON.stringify(modifiedArray));
+					mod.each(function(index){
+						$(this).removeClass( 'jsplumb-drag' );
+					})
+                                        
+				}
+                </script>
+                <script type="text/javascript">
+                    $(document).on('drop',
+                            '.ui-diagram > .ui-diagram-element',
+                            function (info) {
+                                elementDroped([{
+                                        name: 'elementId',
+                                        value: info.target.id
+                                    }]);
+                            });
+                </script>
+                <script>
+                    //<![CDATA[
+                    PrimeFaces.widget.Droppable.prototype.bindDropListener = function () {
+                        var _self = this;
+                        this.cfg.drop = function (event, ui) {
+                            if (_self.cfg.onDrop) {
+                                _self.cfg.onDrop.call(_self, event, ui);
+                            }
+                            if (_self.cfg.behaviors) {
+                                var dropBehavior = _self.cfg.behaviors['drop'];
+                                if (dropBehavior) {
+                                    var ext = {
+                                        params: [
+                                            {name: _self.id + '_dragId', value: ui.draggable.attr('id')},
+                                            {name: _self.id + '_dropId', value: _self.cfg.target},
+                                            {name: ui.draggable.attr('id') + '_left', value: ui.position.left},
+                                            {name: ui.draggable.attr('id') + '_top', value: ui.position.top}
+                                        ]
+                                    };
+                                    console.log(ui);
+                                    dropBehavior.call(_self, ext);
+                                }
+                            }
+                        };
+                    };
+                    // ]]>
+                </script>
+            </h:form>
+
+
+
+
+        </ui:composition>
+    </h:body>
+</html>
+

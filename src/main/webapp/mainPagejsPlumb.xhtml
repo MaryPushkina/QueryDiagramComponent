@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html ng-app=""
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head >       <title>Facelet Title</title>
+
+        <!-- <h:outputScript library="js" name="onDragDrop.js" target="body"/> -->
+
+
+
+        <style>
+            #diagramContainer {
+                padding: 20px;
+                width:80%; height: 200px;
+                border: 1px solid gray;
+                position: relative;
+            }
+
+            .item {
+
+            }
+        </style>
+    </h:head >   
+    <h:body>
+        <h:form>
+            <p:growl id="growl" life="2000" />
+            <p:tabView value="#{tabViewModel.tabs}" var="tab1">
+                <p:tab title="#{tab1.name}">
+                    <div id="diagramContainer" style="position: relative">
+                        <div id="item_left" class="item" style="height:80px; position: absolute; width: 80px;border: 1px solid blue;float: left;"> 
+                            hello1
+                            <p:commandButton  id="item_leftButton" style="margin: 10px 20px"   icon="fa fa-close" title="Удалить сущность" update="@this" actionListener="#{tab1.buttonAction}"/>
+                        </div>
+                        <div id="item_right"  class="item" style="height:80px; width: 80px;position: absolute; border: 1px solid blue;float: left;">hello2</div>
+                    </div>
+                </p:tab>
+            </p:tabView>
+        </h:form>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
+        <script>
+
+            jsPlumb.ready(function () {
+
+                jsPlumb.connect({
+                    source: "item_left",
+                    target: "item_right",
+                    endpoint: "Blank"
+                });
+
+                jsPlumb.draggable($(".item"));
+                jsPlumb.draggable($(".item"));
+            });
+        </script> 
+    </h:body>
+</html>
