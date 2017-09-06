@@ -48,7 +48,7 @@ public class TabModel
     public void addElement()
     {
         number++;
-        blocks.add(new BlockModel("30px", "30px", "Element " + Integer.toString(number)));
+        blocks.add(new BlockModel("30px", "30px", "Element" + Integer.toString(number)));
         addConnection(blocks.get(blocks.size() - 1));
         int n = 0;
 
@@ -59,8 +59,9 @@ public class TabModel
         if (blocks.size() > 1)
         {
             connections.add(new ConnectionModel(blocks.get(blocks.size() - 2), blocksA));
-            RequestContext.getCurrentInstance().execute("src=\"//http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js\""+"\n"
+            System.out.println("src=\"//http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js\""+"\n"
                     + "src=\"//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js\""+"\n"+
+                    "if(document.getElementById(\""+blocksA.name+"\")){"+"\n"+
                     "jsPlumb.ready(function () {\n"
                     + "\n"
                     + "    jsPlumb.connect({\n"
@@ -71,8 +72,24 @@ public class TabModel
                     + "\n"
                     + "    jsPlumb.draggable($(\".item\"));\n"
                     + "    jsPlumb.draggable($(\".item\"));\n"
-                    + "});");
+                    + "});\n"
+                    +"}");
+            RequestContext.getCurrentInstance().execute(
+                    "if(document.getElementById(\""+blocksA.name+"\")){"+"\n"+
+                    "jsPlumb.ready(function () {\n"
+                    + "\n"
+                    + "    jsPlumb.connect({\n"
+                    + "        source: \""+blocks.get(blocks.size() - 2).name+"\",\n"
+                    + "        target: \""+blocksA.name+"\",\n"
+                    + "        endpoint: \"Blank\"\n"
+                    + "    });\n"
+                    + "\n"
+                    + "});\n"
+                    +"}");
+
         }
+        
+
 
     }
 
