@@ -1,4 +1,5 @@
-beans\TabsViewModel.class
-beans\DiagramElement.class
 beans\TabModel.class
+beans\ConnectionModel.class
+beans\TabsViewModel.class
 beans\BlockModel.class
+beans\DiagramElement.class

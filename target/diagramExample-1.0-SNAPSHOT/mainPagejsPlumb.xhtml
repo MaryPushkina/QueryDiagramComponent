@@ -32,33 +32,47 @@ and open the template in the editor.
     </h:head >   
     <h:body>
         <h:form>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
+
             <p:growl id="growl" life="2000" />
             <p:tabView value="#{tabViewModel.tabs}" var="tab1">
-                <p:tab title="#{tab1.name}">
+                <p:tab id="tabExample" title="#{tab1.name}">
+
+                    <p:commandButton  id="item_leftButton2" style="margin: 10px 20px"   value="add element" update="@form" actionListener="#{tab1.addElement}"/>
                     <div id="diagramContainer" style="position: relative">
-                        <div id="item_left" class="item" style="height:80px; position: absolute; width: 80px;border: 1px solid blue;float: left;"> 
-                            hello1
-                            <p:commandButton  id="item_leftButton" style="margin: 10px 20px"   icon="fa fa-close" title="Удалить сущность" update="@this" actionListener="#{tab1.buttonAction}"/>
+                        <div id="elementA" class="item" style="height:80px; position: absolute; width: 120px;border: 1px solid blue;float: left;"> 
+                            elementA 
                         </div>
-                        <div id="item_right"  class="item" style="height:80px; width: 80px;position: absolute; border: 1px solid blue;float: left;">hello2</div>
+                        <div id="elementB" class="item" style="height:80px; position: absolute; width: 120px;border: 1px solid blue;float: left;"> 
+                            elementB
+                        </div>
+                        <p:repeat id = "blockRepeat" value="#{tab1.blocks}" var="block">
+                            <div id="#{block.name}" class="item" style="height:80px; position: absolute; width: 120px;border: 1px solid blue;float: left;"> 
+                                #{block.name}
+                                <p:commandButton  id="item_leftButton" style="margin: 10px 20px"   icon="fa fa-close" title="Удалить сущность" update="@this" actionListener="#{block.buttonAction}"/>
+
+                            </div>
+                        </p:repeat>
+                        <script>
+                            
+                            jsPlumb.ready(function () {
+                                jsPlumb.Defaults.Container = $('#diagramContainer');
+                                jsPlumb.connect({
+                                    source: "elementA",
+                                    target: "elementB",
+                                    endpoint: "Blank"
+                                });
+
+
+                                jsPlumb.draggable($(".item"));
+                                jsPlumb.draggable($(".item"));
+                            });</script>
                     </div>
+
                 </p:tab>
             </p:tabView>
         </h:form>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
-        <script>
 
-            jsPlumb.ready(function () {
 
-                jsPlumb.connect({
-                    source: "item_left",
-                    target: "item_right",
-                    endpoint: "Blank"
-                });
-
-                jsPlumb.draggable($(".item"));
-                jsPlumb.draggable($(".item"));
-            });
-        </script> 
     </h:body>
 </html>
