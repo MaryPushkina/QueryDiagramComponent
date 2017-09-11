@@ -5,18 +5,18 @@
  */
 package beans;
 
-import java.awt.event.ActionEvent;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Named;
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import org.primefaces.model.diagram.Connection;
 import org.primefaces.model.diagram.DefaultDiagramModel;
 import org.primefaces.model.diagram.DiagramModel;
-import org.primefaces.model.diagram.Element;
 import org.primefaces.model.diagram.endpoint.DotEndPoint;
 import org.primefaces.model.diagram.endpoint.EndPointAnchor;
 
@@ -25,8 +25,8 @@ import org.primefaces.model.diagram.endpoint.EndPointAnchor;
  * @author Мария
  */
 @Named(value = "oneTabModel")
-@Dependent
-public class TabModel
+@SessionScoped
+public class TabModel implements Serializable
 {
     private final List<BlockModel> blocks;
     private final DefaultDiagramModel model;
@@ -71,6 +71,12 @@ public class TabModel
     }
         public void buttonAction() {
         addMessage("Welcome to Primefaces!!");
+    }
+     public void buttonAction1(ActionEvent actionEvent) {
+        addMessage("Welcome to Primefaces!!");
+        Object ob = actionEvent.getSource();
+        int k=0;
+        
     }
      
     public void addMessage(String summary) {
