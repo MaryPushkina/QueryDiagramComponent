@@ -12,6 +12,7 @@ and open the template in the editor.
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:head >       <title>Facelet Title</title>
+         <h:outputStylesheet library="css" name="cssLayout.css"  />
 
         <!-- <h:outputScript library="js" name="onDragDrop.js" target="body"/> -->
 
@@ -31,44 +32,72 @@ and open the template in the editor.
         </style>
     </h:head >   
     <h:body>
-        <h:form>
-            <script src="//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
+        <h:form id ="tabsForm">
+            <script src="resources/js/jsplumb.min.js "></script>
 
             <p:growl id="growl" life="2000" />
-            <p:tabView value="#{tabViewModel.tabs}" var="tab1">
+            <p:tabView id="tabs" value="#{tabViewModel.tabs}" var="tab1">
                 <p:tab id="tabExample" title="#{tab1.name}">
+                    <p:panel id="basic">
+                        <p:inputText value="#{tab1.numberDeleteElement}">
 
-                    <p:commandButton  id="item_leftButton2" style="margin: 10px 20px"   value="add element" update="@form" actionListener="#{tab1.addElement}"/>
-                    <div id="diagramContainer" style="position: relative">
-                        <div id="elementA" class="item" style="height:80px; position: absolute; width: 120px;border: 1px solid blue;float: left;"> 
-                            elementA 
-                        </div>
-                        <div id="elementB" class="item" style="height:80px; position: absolute; width: 120px;border: 1px solid blue;float: left;"> 
-                            elementB
-                        </div>
-                        <p:repeat id = "blockRepeat" value="#{tab1.blocks}" var="block">
-                            <div id="#{block.name}" class="item" style="height:80px; position: absolute; width: 120px;border: 1px solid blue;float: left;"> 
-                                #{block.name}
-                                <p:commandButton  id="item_leftButton" style="margin: 10px 20px"   icon="fa fa-close" title="Удалить сущность" update="@this" actionListener="#{block.buttonAction}"/>
+                        </p:inputText>
+                        <div><p:commandButton  id="deleteElement" style="margin: 10px 20px"   value="deleteElement" update="basic"  actionListener="#{tab1.deleteElement}"/></div>  
 
-                            </div>
-                        </p:repeat>
-                        <script>
-                            
-                            jsPlumb.ready(function () {
-                                jsPlumb.Defaults.Container = $('#diagramContainer');
-                                jsPlumb.connect({
-                                    source: "elementA",
-                                    target: "elementB",
-                                    endpoint: "Blank"
+                        <div><p:commandButton  id="item_leftButton2" style="margin: 10px 20px"   value="add element" update="basic"  actionListener="#{tab1.addElement}"/></div>  
+                        <div id="diagramContainer" style="position: relative; width: 500px; height: 500px">
+
+                            <p:repeat id = "blockRepeat" value="#{tab1.blocks}" var="block">
+                                <div id="#{block.name}" class="item" style="height:80px; position: absolute; width: 120px;border: 1px solid blue;float: left;left:#{block.x}; top:#{block.y}"> 
+                                    #{block.name}
+                                    <p:commandButton  id="item_leftButton" style="margin: 10px 20px"   icon="fa fa-close" title="Удалить сущность" update="@this" actionListener="#{block.buttonAction}"/>
+
+                                </div>
+                            </p:repeat>
+                            <script>
+
+                                jsPlumb.ready(function () {
+                                    instance = window.jsp = jsPlumb.getInstance({
+                                        // default drag options
+                                        DragOptions: {
+                                            cursor: 'pointer',
+                                            zIndex: 2000
+                                        },
+                                        // the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
+                                        // case it returns the 'labelText' member that we set on each connection in the 'init' method below.
+                                        ConnectionOverlays: [
+                                            ["Arrow", {
+                                                    location: 1,
+                                                    visible: true,
+                                                    id: "ARROW",
+                                                    events: {
+                                                        click: function () {
+                                                            alert("you clicked on the arrow overlay")
+                                                        }
+                                                    }
+                                                }],
+                                            ["Label", {
+                                                    location: 0.1,
+                                                    id: "label",
+                                                    cssClass: "aLabel",
+                                                    events: {
+                                                        tap: function () {
+                                                            alert("hey");
+                                                        }
+                                                    }
+                                                }]
+                                        ],
+                                        Container: "diagramContainer"
+                                    });
+
+
+                                    instance.draggable($(".item"));
+
+
                                 });
-
-
-                                jsPlumb.draggable($(".item"));
-                                jsPlumb.draggable($(".item"));
-                            });</script>
-                    </div>
-
+                            </script>
+                        </div>
+                    </p:panel>
                 </p:tab>
             </p:tabView>
         </h:form>

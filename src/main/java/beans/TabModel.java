@@ -32,11 +32,15 @@ import org.primefaces.model.diagram.endpoint.EndPointAnchor;
 public class TabModel
 {
 
+    private String numberDeleteElement;
+
     private static int number = 0;
     private final List<BlockModel> blocks;
     private final DefaultDiagramModel model;
     private String name;
-    private final List<ConnectionModel> connections;
+    private int x = 0;
+    private int y = 0;
+    private List<ConnectionModel> connections;
 
     public TabModel()
     {
@@ -45,52 +49,128 @@ public class TabModel
         connections = new ArrayList<>();
     }
 
+    public String getNumberDeleteElement()
+    {
+        return numberDeleteElement;
+    }
+
+    public void setNumberDeleteElement(String numberDeleteElement)
+    {
+        this.numberDeleteElement = numberDeleteElement;
+    }
+
     public void addElement()
     {
         number++;
-        blocks.add(new BlockModel("30px", "30px", "Element" + Integer.toString(number)));
-        addConnection(blocks.get(blocks.size() - 1));
+        x+=30;
+        y+=30;
+        String xStr = Integer.toString(x)+"px";
+        String yStr = Integer.toString(y)+"px";
+        blocks.add(new BlockModel(xStr, yStr, "Element" + Integer.toString(number)));
+
+        if (number > 1)
+        {
+            connections.add(new ConnectionModel(blocks.get(blocks.size() - 2), blocks.get(blocks.size() - 1)));
+            drawingConnections();
+
+        }
         int n = 0;
 
     }
 
-    private void addConnection(BlockModel blocksA)
+    private List<BlockModel> findConnectionsElement(BlockModel block)
     {
-        if (blocks.size() > 1)
+        List<BlockModel> removeBlocks = new ArrayList<>();
+        removeBlocks.add(block);
+        List<ConnectionModel> copyConnections = new ArrayList<>(connections);
+        for (ConnectionModel connection : copyConnections)
         {
-            connections.add(new ConnectionModel(blocks.get(blocks.size() - 2), blocksA));
-            System.out.println("src=\"//http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js\""+"\n"
-                    + "src=\"//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js\""+"\n"+
-                    "if(document.getElementById(\""+blocksA.name+"\")){"+"\n"+
-                    "jsPlumb.ready(function () {\n"
-                    + "\n"
-                    + "    jsPlumb.connect({\n"
-                    + "        source: \""+blocks.get(blocks.size() - 2).name+"\",\n"
-                    + "        target: \""+blocksA.name+"\",\n"
-                    + "        endpoint: \"Blank\"\n"
-                    + "    });\n"
-                    + "\n"
-                    + "    jsPlumb.draggable($(\".item\"));\n"
-                    + "    jsPlumb.draggable($(\".item\"));\n"
-                    + "});\n"
-                    +"}");
-            RequestContext.getCurrentInstance().execute(
-                    "if(document.getElementById(\""+blocksA.name+"\")){"+"\n"+
-                    "jsPlumb.ready(function () {\n"
-                    + "\n"
-                    + "    jsPlumb.connect({\n"
-                    + "        source: \""+blocks.get(blocks.size() - 2).name+"\",\n"
-                    + "        target: \""+blocksA.name+"\",\n"
-                    + "        endpoint: \"Blank\"\n"
-                    + "    });\n"
-                    + "\n"
-                    + "});\n"
-                    +"}");
-
+            if ((block.equals(connection.endBlockModel)) || (block.equals(connection.startBlockModel)))
+            {
+                connections.remove(connection);
+                if (block.equals(connection.startBlockModel))
+                {
+                    removeBlocks.add(connection.endBlockModel);
+                }
+            }
         }
-        
+        return removeBlocks;
+    }
 
+    public void deleteElement()
+    {
+        int k = Integer.parseInt(numberDeleteElement) - 1;
+        removejs(blocks.get(k));
+        if ((numberDeleteElement != null) && (k <= blocks.size()))
+        {
+            List<BlockModel> removeBlocks = findConnectionsElement(blocks.get(k));
 
+            drawingConnections();
+            for (BlockModel bl : removeBlocks)
+            {
+                blocks.remove(bl);
+            }
+        }
+    }
+
+    private void removejs(BlockModel blockA)
+    {
+        System.out.println("jsPlumb.remove(\"" + blockA.name + "\"); ");
+        RequestContext.getCurrentInstance().execute("jsPlumb.deleteEveryEndpoint();");
+        RequestContext.getCurrentInstance().execute(
+                "jsPlumb.remove(\"" + blockA.name + "\"); \n"
+        );
+    }
+
+    private void drawingConnections()
+    {
+        int k = 0;
+
+        for (ConnectionModel connection : connections)
+        {
+            addConnection(connection.endBlockModel, connection.startBlockModel);
+        }
+    }
+
+    //добавить новую связь
+    private void addConnection(BlockModel blocksA, BlockModel blocksB)
+    {
+
+        System.out.println("src=\"//http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js\"" + "\n"
+                + "src=\"//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js\"" + "\n"
+                + "if(document.getElementById(\"" + blocksA.name + "\")){" + "\n"
+                + "jsPlumb.ready(function () {\n"
+                + "\n"
+                + " var firstInstance = jsPlumb.getInstance();"
+                + "    firstInstance.connect({\n"
+                + "        source: \"" + blocksB.name + "\",\n"
+                + "        target: \"" + blocksA.name + "\",\n"
+                + "        anchor: [\"Left\",\"Right\"],\n"
+                + "        endpoint: \"Blank\"\n"
+                + "    });\n"
+                + "\n"
+                + "    jsPlumb.draggable($(\".item\"));\n"
+                + "    jsPlumb.draggable($(\".item\"));\n"
+                + "});\n"
+                + "}");
+
+        RequestContext.getCurrentInstance().execute(
+                "jsPlumb.setSuspendDrawing(true);"+ "\n"
+                + "if(document.getElementById(\"" + blocksA.name + "\")){" + "\n"
+                + "jsPlumb.ready(function () {\n"
+                + "\n"
+                + " var firstInstance = jsPlumb.getInstance();"
+                + "   firstInstance.connect({\n"
+                + "        source: \"" + blocksB.name + "\",\n"
+                + "        target: \"" + blocksA.name + "\",\n"
+                + "        anchor: [\"Left\",\"Right\"],\n"
+                + "        endpoint: \"Blank\"\n"
+                + "    });\n"
+                + "\n"
+                + "});\n"
+                + "}"
+                +"jsPlumb.setSuspendDrawing(false, true);"
+        );
     }
 
     public List<BlockModel> getBlocks()

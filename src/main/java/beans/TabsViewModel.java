@@ -14,6 +14,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import org.primefaces.context.RequestContext;
 
 /**
  *
@@ -56,5 +57,8 @@ public class TabsViewModel implements Serializable
     {
         this.activeTabIndex = activeTabIndex;
     }
+    public void updateComponent(String compId){ 
+     RequestContext.getCurrentInstance().update(compId);
+}
 
 }
