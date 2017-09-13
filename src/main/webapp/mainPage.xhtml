@@ -40,7 +40,7 @@ and open the template in the editor.
                     <p:diagram value="#{tab1.model}" style="height:600px"  var="el">
                         <f:facet name="element">
                             <h:outputText value="#{el.name}" style="display:block;margin-top:1em;"/>
-                            <p:commandButton value="button" id="ajax" update="@this" actionListener="#{el.buttonAction}" />
+                            <p:commandButton value="button" id="ajax" update="@this" actionListener="#{tab1.buttonAction1}" />
                             <p:draggable/>
                         </f:facet>
                     </p:diagram>
